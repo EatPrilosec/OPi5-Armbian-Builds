@@ -158,7 +158,6 @@ jobs:
                       continue
                     fi
                   fi
-                  kde-plasma-mobile
                   echo running ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}
                   ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
                   outputfilerelpath=$(find output -name "*.img" -exec echo -n {} \;)
