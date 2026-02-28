@@ -40,6 +40,15 @@ jobs:
         type: [minimal, cinnamon, gnome, kde-plasma, mate, xfce]
         kernel: [current edge vendor] 
         os: [trixie, noble]
+        include:
+          - device: orangepi5-plus
+            type: kde-neon
+            kernel: current edge vendor
+            os: noble
+          - device: orangepi5-plus
+            type: mate
+            kernel: current edge vendor
+            os: trixie
       fail-fast: false
     runs-on: ubuntu-latest
     needs: get_build_date
@@ -137,7 +146,7 @@ jobs:
 
 
       - name: Build armbian-${{ matrix.device }}-${{ matrix.kernel }}-[${{ matrix.os }}]-${{ matrix.type }}.img
-        if: ${{ !(matrix.os == 'trixie' && matrix.type == 'mate') }}
+        if: ${{ !( (matrix.type == 'kde-neon' && matrix.os != 'plucky') || (matrix.type == 'mate' && matrix.os != 'trixie') ) }}
         run: |
             # export CCACHE=1
             mkdir release
@@ -181,7 +190,7 @@ jobs:
 
 
       - name: Release armbian-[${{ matrix.device }}]-[${{ matrix.os }}]-[${{ matrix.type }}].img.xz
-        if: ${{ !(matrix.os == 'trixie' && matrix.type == 'mate') }}
+        if: ${{ !( (matrix.type == 'kde-neon' && matrix.os != 'plucky') || (matrix.type == 'mate' && matrix.os != 'trixie') ) }}
         uses: softprops/action-gh-release@v2
         with:
           files: release/*.img.xz
