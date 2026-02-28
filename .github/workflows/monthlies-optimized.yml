@@ -137,6 +137,7 @@ jobs:
 
 
       - name: Build armbian-${{ matrix.device }}-${{ matrix.kernel }}-[${{ matrix.os }}]-${{ matrix.type }}.img
+        if: ${{ !(matrix.os == 'trixie' && (matrix.type == 'kde-plasma-mobile' || matrix.type == 'mate')) }}
         run: |
             # export CCACHE=1
             mkdir release
@@ -150,14 +151,7 @@ jobs:
                 for type in ${{ matrix.type }}; do
                   export type=$type
                   export image=${{ matrix.device }}-${kernel}-${os}-${type}
-                  if [ "$os" == "trixie" ]; then
-                    if [ "$type" == "mate" ]; then
-                      continue
-                    fi
-                    if [ "$type" == "kde-plasma-mobile" ]; then
-                      continue
-                    fi
-                  fi
+
                   echo running ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}
                   ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
                   outputfilerelpath=$(find output -name "*.img" -exec echo -n {} \;)
@@ -187,6 +181,7 @@ jobs:
 
 
       - name: Release armbian-[${{ matrix.device }}]-[${{ matrix.os }}]-[${{ matrix.type }}].img.xz
+        if: ${{ !(matrix.os == 'trixie' && (matrix.type == 'kde-plasma-mobile' || matrix.type == 'mate')) }}
         uses: softprops/action-gh-release@v2
         with:
           files: release/*.img.xz
