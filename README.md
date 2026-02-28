@@ -1,3 +1,3 @@
 # opi5plus  armbian monthly builds
 
-Image Picker: [https://dabbingwowdevs.github.io/OPi5Plus-Armbian/](https://dabbingwowdevs.github.io/OPi5Plus-Armbian/)
+Image Picker: [https://EatPrilosec.github.io/OPi5-Armbian-Builds/](https://EatPrilosec.github.io/OPi5-Armbian-Builds/)

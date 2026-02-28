@@ -225,7 +225,7 @@ jobs:
               vendor_kver=$kver
             fi
           done
-          body="Image Picker: https://dabbingwowdevs.github.io/OPi5Plus-Armbian/
+          body="Image Picker: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/
           Armbian Version: $AVer
           Kernel Versions:
           - Current: $current_kver
