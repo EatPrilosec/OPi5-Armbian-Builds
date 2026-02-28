@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Picker</title>
+  <style>
+    body {
+      padding: 25px;
+      background-color: #121212;
+      color: #ff6f00;
+      font-family: sans-serif;
+    }
+
+    input[type="text"] {
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background-color: #333;
+      color: #eee;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #003f7a;
+    }
+
+    #assetList a {
+      color: #ff6f00;
+      text-decoration: underline;
+      margin-bottom: 5px;
+      display: block;
+      transition: color 0.2s;
+    }
+
+    #assetList a:hover {
+      text-decoration: underline;
+      color: #ff9100;
+    }
+
+    #assetList a:active,
+    #assetList a:visited {
+      color: #b34700;
+    }
+
+    h2 {
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    h3 {
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    h4 {
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+      accent-color: #ff6f00;
+      border: 1.5px solid #ff6f00;
+    }
+
+    input[type="checkbox"].styled,
+    input[type="radio"].styled {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .custom-checkbox,
+    .custom-radio {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #222;
+      border: 1.5px solid #ff6f00;
+      border-radius: 4px;
+      vertical-align: middle;
+      margin-right: 6px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .custom-radio {
+      border-radius: 50%;
+    }
+
+    input[type="checkbox"].styled:checked + .custom-checkbox,
+    input[type="radio"].styled:checked + .custom-radio {
+      background: #ff6f00;
+      box-shadow: 0 0 0 2px #ff6f00 inset;
+    }
+
+    .custom-checkbox:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    input[type="checkbox"].styled:checked + .custom-checkbox:after {
+      display: block;
+    }
+
+    .custom-checkbox:after {
+      left: 5px;
+      top: 1px;
+      width: 4px;
+      height: 9px;
+      border: solid #222;
+      border-width: 0 3px 3px 0;
+      transform: rotate(45deg);
+    }
+
+    .custom-radio:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    input[type="radio"].styled:checked + .custom-radio:after {
+      display: block;
+    }
+
+    .custom-radio:after {
+      top: 4px;
+      left: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #222;
+    }
+
+    input[type="checkbox"].myCheckbox:disabled + .custom-checkbox {
+      background: #7a3c00;
+      border-color: #b34700;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="pageTitle">Image Picker</h2>
+  <p>Select the OS, kernel, and desktop environment for the Armbian image.</p>
+  <p>The image name and download links will be generated below.</p>
+
+  
+  <h3>Select Board</h3>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5-max">
+    <span class="custom-radio"></span>
+    orangepi5-max
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5-plus" checked>
+    <span class="custom-radio"></span>
+    orangepi5-plus
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5-ultra">
+    <span class="custom-radio"></span>
+    orangepi5-ultra
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5">
+    <span class="custom-radio"></span>
+    orangepi5
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5b">
+    <span class="custom-radio"></span>
+    orangepi5b
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="board" value="orangepi5pro">
+    <span class="custom-radio"></span>
+    orangepi5pro
+  </label><br>
+  <h3>Select OS</h3>
+  <label>
+    <input type="radio" class="styled myRadio" name="os" value="trixie" checked>
+    <span class="custom-radio"></span>
+    Debian 13 Trixie
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="os" value="noble">
+    <span class="custom-radio"></span>
+    Ubuntu 24.04 Noble
+  </label><br>
+  <!-- <label>
+    <input type="radio" class="styled myRadio" name="os" value="plucky">
+    <span class="custom-radio"></span>
+    Ubuntu 25.04 Plucky
+  </label><br><br> -->
+
+  <h3>Select Kernel</h3>
+  <label>
+    <input type="radio" class="styled myRadio" name="kernel" value="current">
+    <span class="custom-radio"></span>
+    Current <span id="currentVersion"></span>
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="kernel" value="edge" checked>
+    <span class="custom-radio"></span>
+    Edge <span id="edgeVersion"></span>
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="kernel" value="vendor">
+    <span class="custom-radio"></span>
+    Vendor <span id="vendorVersion"></span>
+  </label><br><br>
+
+  <h3>Select Desktop Environment</h3>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="minimal" checked>
+    <span class="custom-radio"></span>
+    Minimal
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="cinnamon">
+    <span class="custom-radio"></span>
+    Cinnamon
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="gnome">
+    <span class="custom-radio"></span>
+    GNOME
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="kde-plasma">
+    <span class="custom-radio"></span>
+    KDE-Plasma (Ubuntu only)
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="kde-plasma-mobile">
+    <span class="custom-radio"></span>
+    KDE-Plasma-Mobile (Ubuntu only)
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="mate">
+    <span class="custom-radio"></span>
+    MATE (Debian only)
+  </label><br>
+  <label>
+    <input type="radio" class="styled myRadio" name="type" value="xfce">
+    <span class="custom-radio"></span>
+    XFCE
+  </label><br><br>
+
+  <b>Filename Pattern:</b> <i id="result"></i>
+  <br><br>
+  <h4>Download links</h4>
+  <div id="assetList"></div>
+
+  <footer id="repoFooter" style="margin-top:2em; color:#ff6f00; font-size:0.95em;"></footer>
+
+  <script>
+    function wildcardToRegExp(pattern) {
+      pattern = pattern.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&');
+      pattern = pattern.replace(/\*/g, '.*');
+      return new RegExp('^' + pattern + '$', 'i');
+    }
+
+    let repoInfo = { owner: "EatPrilosec", repo: "OPi5-Armbian-Builds" };
+
+    function getRepoInfo() {
+      return repoInfo;
+    }
+
+    async function loadRepoInfo() {
+      try {
+        const resp = await fetch('./index.env');
+        if (!resp.ok) return;
+        const text = await resp.text();
+
+        const ownerMatch = text.match(/^\s*(?:OWNER|owner)\s*=\s*(.+)\s*$/m);
+        const repoMatch = text.match(/^\s*(?:REPO|repo)\s*=\s*(.+)\s*$/m);
+
+        if (ownerMatch && ownerMatch[1]) repoInfo.owner = ownerMatch[1].trim();
+        if (repoMatch && repoMatch[1]) repoInfo.repo = repoMatch[1].trim();
+      } catch (e) {
+        // ignore: keep defaults
+      }
+    }
+
+    async function fetchKernelVersions() {
+      const { owner, repo } = getRepoInfo();
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        const body = data.body || "";
+
+        // Parse kernel versions from release body
+        const currentMatch = body.match(/- Current: ([\S]+)/);
+        const edgeMatch = body.match(/- Edge: ([\S]+)/);
+        const vendorMatch = body.match(/- Vendor: ([\S]+)/);
+
+        const currentVersion = currentMatch ? currentMatch[1] : "Unknown";
+        const edgeVersion = edgeMatch ? edgeMatch[1] : "Unknown";
+        const vendorVersion = vendorMatch ? vendorMatch[1] : "Unknown";
+
+        document.getElementById("currentVersion").textContent = `(${currentVersion})`;
+        document.getElementById("edgeVersion").textContent = `(${edgeVersion})`;
+        document.getElementById("vendorVersion").textContent = `(${vendorVersion})`;
+      } catch (e) {
+        console.error("Error fetching kernel versions:", e);
+      }
+    }
+
+    async function fetchAndDisplayAssets() {
+      const { owner, repo } = getRepoInfo();
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+      const resultElem = document.getElementById("result");
+      const assetListElem = document.getElementById("assetList");
+      const pattern = resultElem.textContent;
+      const regex = wildcardToRegExp(pattern);
+
+      assetListElem.innerHTML = "Loading...";
+
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        const assets = data.assets || [];
+        const matches = assets.filter(asset => regex.test(asset.name));
+
+        if (matches.length === 0) {
+          assetListElem.innerHTML = "No matching assets found.";
+          return;
+        }
+
+        assetListElem.innerHTML = matches.map(asset =>
+          `<a href="${asset.browser_download_url}" target="_blank">${asset.name}</a>`
+        ).join('');
+      } catch (e) {
+        assetListElem.innerHTML = "Error fetching assets.";
+      }
+    }
+
+    function getStringFromRadios() {
+      const board = document.querySelector('input[name="board"]:checked').value;
+      const os = document.querySelector('input[name="os"]:checked').value;
+      const kernel = document.querySelector('input[name="kernel"]:checked').value;
+      const type = document.querySelector('input[name="type"]:checked').value;
+
+      const resultString = `armbian-${board}-${os}-${type}-*-${kernel}-*.img.xz`;
+      document.getElementById("result").textContent = resultString;
+
+      fetchAndDisplayAssets();
+    }
+
+    document.querySelectorAll('.myRadio').forEach(function(radio) {
+      radio.addEventListener('change', getStringFromRadios);
+    });
+
+    loadRepoInfo().then(() => {
+      fetchKernelVersions();
+      getStringFromRadios();
+      updateRepoFooter();
+      setPageTitleFromRepo();
+    });
+
+    function updateRepoFooter() {
+      const { owner, repo } = getRepoInfo();
+      const footer = document.getElementById("repoFooter");
+      footer.innerHTML = `Using GitHub repo: <a href="https://github.com/${owner}/${repo}" target="_blank" style="color:#ff6f00;">${owner}/${repo}</a>`;
+    }
+    function friendlyName(name) {
+      return (name || '')
+        .replace(/[-_]+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    async function setPageTitleFromRepo() {
+      const { owner, repo } = getRepoInfo();
+      const el = document.getElementById('pageTitle');
+      let friendly = friendlyName(repo);
+
+      try {
+        const resp = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.name) friendly = friendlyName(data.name);
+        }
+      } catch (e) {
+        // ignore and use fallback
+      }
+
+      const title = `${friendly} Image Picker`;
+      document.title = title;
+      if (el) el.textContent = title;
+    }
+
+    setPageTitleFromRepo();
+  </script>
+</body>
+</html>
