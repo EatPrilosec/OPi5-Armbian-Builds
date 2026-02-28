@@ -37,7 +37,8 @@ jobs:
     strategy:
       matrix:
         device: [orangepi5-max, orangepi5-plus, orangepi5-ultra, orangepi5, orangepi5b, orangepi5pro]
-        type: [minimal, cinnamon, gnome, kde-plasma, kde-plasma-mobile, mate, xfce]
+        #type: [minimal, cinnamon, gnome, kde-plasma, kde-plasma-mobile, mate, xfce]
+        type: [kde-plasma-mobile]
         kernel: [current edge vendor] 
         os: [trixie, noble]
       fail-fast: false
