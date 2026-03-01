@@ -39,42 +39,23 @@
       display: block;
       transition: color 0.2s;
     }
-        try {
-          const response = await fetch(apiUrl);
-          const data = await response.json();
-        
-          // Debug logging
-          console.log("API Response:", data);
-          console.log("Pattern:", pattern);
-          console.log("Regex:", regex);
-        
-          if (data.message) {
-            console.error("API Error:", data.message);
-            assetListElem.innerHTML = `Error: ${data.message}`;
-            return;
-          }
-        
-          const assets = data.assets || [];
-          console.log("All assets:", assets.map(a => a.name));
-        
-          const matches = assets.filter(asset => {
-            const isMatch = regex.test(asset.name);
-            console.log(`"${asset.name}" matches pattern: ${isMatch}`);
-            return isMatch;
-          });
 
-          if (matches.length === 0) {
-            assetListElem.innerHTML = "No matching assets found.";
-            return;
-          }
+    #assetList a:hover {
+      text-decoration: underline;
+      color: #ff9100;
+    }
 
-          assetListElem.innerHTML = matches.map(asset =>
-            `<a href="${asset.browser_download_url}" target="_blank">${asset.name}</a>`
-          ).join('');
-        } catch (e) {
-          console.error("Fetch error:", e);
-          assetListElem.innerHTML = "Error fetching assets: " + e.message;
-        }
+    #assetList a:active,
+    #assetList a:visited {
+      color: #b34700;
+    }
+
+    h2 {
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+
+    h3 {
       margin-bottom: 4px;
       margin-top: 6px;
     }
@@ -240,7 +221,7 @@
 
   <h3>Select Desktop Environment</h3>
   <label>
-    <input type="radio" class="styled myRadio" name="type" value="minimal" checked>
+    <input type="radio" class="styled myRadio" name="type" value="minimal">
     <span class="custom-radio"></span>
     Minimal
   </label><br>
@@ -250,7 +231,7 @@
     Cinnamon
   </label><br>
   <label>
-    <input type="radio" class="styled myRadio" name="type" value="gnome">
+    <input type="radio" class="styled myRadio" name="type" value="gnome" checked>
     <span class="custom-radio"></span>
     GNOME
   </label><br>
