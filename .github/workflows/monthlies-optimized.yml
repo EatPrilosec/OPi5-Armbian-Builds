@@ -56,23 +56,23 @@ jobs:
       BRANCH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.branch || 'trunk' }}
     steps:
 
-      # - name: Free Disk Space (Ubuntu)
-      #   uses: BRAINSia/free-disk-space@v2
-      #   with:
-      #     tool-cache: false
-      #     mandb:   true
-      #     android: true
-      #     dotnet: true
-      #     haskell: true
-      #     large-packages: true
-      #     docker-images: true
-      #     swap-storage: true
+      - name: Free Disk Space (Ubuntu)
+        uses: BRAINSia/free-disk-space@v2
+        with:
+          tool-cache: false
+          mandb:   true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
-      # - uses: thejerrybao/setup-swap-space@v1
-      #   with:
-      #     swap-space-path: /swapfile
-      #     swap-size-gb:  8
-      #     remove-existing-swap-files: false
+      - uses: thejerrybao/setup-swap-space@v1
+        with:
+          swap-space-path: /swapfile
+          swap-size-gb:  8
+          remove-existing-swap-files: false
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
