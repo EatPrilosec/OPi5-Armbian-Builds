@@ -231,9 +231,9 @@ jobs:
           body="Image Picker: https://${{ github.repository_owner }}.github.io/${{ github.repository }}/
           Armbian Version: $AVer
           Kernel Versions:
-          - Current: $current_kver
           - Edge: $edge_kver
           - Vendor: $vendor_kver"
+          #- Current: $current_kver
           gh release edit $tag --repo ${{ github.repository }} --notes "$body"
     
   publish:
