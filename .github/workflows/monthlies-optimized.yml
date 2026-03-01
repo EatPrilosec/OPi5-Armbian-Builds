@@ -208,7 +208,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Update draft release body
         run: |
-          tag="${{ env.DEVICE }}-v${{ needs.get_build_date.outputs.build_date }}"
+          tag="v${{ needs.get_build_date.outputs.build_date }}"
           assets=$(gh release view $tag --repo ${{ github.repository }} --json assets -q '.assets[].name')
           AVer=""
           current_kver=""
