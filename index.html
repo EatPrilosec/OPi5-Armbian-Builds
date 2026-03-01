@@ -39,23 +39,42 @@
       display: block;
       transition: color 0.2s;
     }
+        try {
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+        
+          // Debug logging
+          console.log("API Response:", data);
+          console.log("Pattern:", pattern);
+          console.log("Regex:", regex);
+        
+          if (data.message) {
+            console.error("API Error:", data.message);
+            assetListElem.innerHTML = `Error: ${data.message}`;
+            return;
+          }
+        
+          const assets = data.assets || [];
+          console.log("All assets:", assets.map(a => a.name));
+        
+          const matches = assets.filter(asset => {
+            const isMatch = regex.test(asset.name);
+            console.log(`"${asset.name}" matches pattern: ${isMatch}`);
+            return isMatch;
+          });
 
-    #assetList a:hover {
-      text-decoration: underline;
-      color: #ff9100;
-    }
+          if (matches.length === 0) {
+            assetListElem.innerHTML = "No matching assets found.";
+            return;
+          }
 
-    #assetList a:active,
-    #assetList a:visited {
-      color: #b34700;
-    }
-
-    h2 {
-      margin-bottom: 4px;
-      margin-top: 6px;
-    }
-
-    h3 {
+          assetListElem.innerHTML = matches.map(asset =>
+            `<a href="${asset.browser_download_url}" target="_blank">${asset.name}</a>`
+          ).join('');
+        } catch (e) {
+          console.error("Fetch error:", e);
+          assetListElem.innerHTML = "Error fetching assets: " + e.message;
+        }
       margin-bottom: 4px;
       margin-top: 6px;
     }
@@ -276,7 +295,40 @@
       return repoInfo;
     }
 
+    function getRepoInfoFromGitHubPagesUrl() {
+      const host = window.location.hostname || "";
+      const pathParts = (window.location.pathname || "").split('/').filter(Boolean);
+
+      if (!host.endsWith('.github.io')) {
+        return null;
+      }
+
+      const owner = host.replace(/\.github\.io$/i, '');
+      const repo = pathParts[0];
+
+      if (!owner || !repo) {
+        return null;
+      }
+
+      return { owner, repo };
+    }
+
+    function getGitHubHeaders() {
+      const headers = { Accept: 'application/vnd.github+json' };
+      const token = localStorage.getItem('gh_token');
+      if (token) {
+        headers.Authorization = `token ${token}`;
+      }
+      return headers;
+    }
+
     async function loadRepoInfo() {
+      const repoFromUrl = getRepoInfoFromGitHubPagesUrl();
+      if (repoFromUrl) {
+        repoInfo = repoFromUrl;
+        return;
+      }
+
       try {
         const resp = await fetch('./index.env');
         if (!resp.ok) return;
@@ -297,11 +349,10 @@
       const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
 
       try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, { headers: getGitHubHeaders() });
         const data = await response.json();
         const body = data.body || "";
 
-        // Parse kernel versions from release body
         const currentMatch = body.match(/- Current: ([\S]+)/);
         const edgeMatch = body.match(/- Edge: ([\S]+)/);
         const vendorMatch = body.match(/- Vendor: ([\S]+)/);
@@ -310,9 +361,13 @@
         const edgeVersion = edgeMatch ? edgeMatch[1] : "Unknown";
         const vendorVersion = vendorMatch ? vendorMatch[1] : "Unknown";
 
-        document.getElementById("currentVersion").textContent = `(${currentVersion})`;
-        document.getElementById("edgeVersion").textContent = `(${edgeVersion})`;
-        document.getElementById("vendorVersion").textContent = `(${vendorVersion})`;
+        const currentVersionEl = document.getElementById("currentVersion");
+        const edgeVersionEl = document.getElementById("edgeVersion");
+        const vendorVersionEl = document.getElementById("vendorVersion");
+
+        if (currentVersionEl) currentVersionEl.textContent = `(${currentVersion})`;
+        if (edgeVersionEl) edgeVersionEl.textContent = `(${edgeVersion})`;
+        if (vendorVersionEl) vendorVersionEl.textContent = `(${vendorVersion})`;
       } catch (e) {
         console.error("Error fetching kernel versions:", e);
       }
@@ -329,8 +384,14 @@
       assetListElem.innerHTML = "Loading...";
 
       try {
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, { headers: getGitHubHeaders() });
         const data = await response.json();
+
+        if (data.message) {
+          assetListElem.innerHTML = `Error fetching assets: ${data.message}`;
+          return;
+        }
+
         const assets = data.assets || [];
         const matches = assets.filter(asset => regex.test(asset.name));
 
