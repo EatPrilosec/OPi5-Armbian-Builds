@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: release Armbian monthly by kernel
+name: release Armbian monthly
 on:
   schedule:
     - cron: '20 9 14 * *'
@@ -36,10 +36,10 @@ jobs:
   build:
     strategy:
       matrix:
-        device: [orangepi5-max orangepi5-plus orangepi5-ultra orangepi5 orangepi5b orangepi5pro]
-        type: [minimal cinnamon gnome kde-plasma mate xfce]
-        kernel: [current, edge, vendor] 
-        os: [trixie noble]
+        device: [orangepi5-max, orangepi5-plus, orangepi5-ultra, orangepi5, orangepi5b, orangepi5pro]
+        type: [minimal, cinnamon, gnome, kde-plasma, mate, xfce]
+        kernel: [current edge vendor] 
+        os: [trixie, noble]
         # include:
         #   - device: orangepi5-plus
         #     type: kde-neon
@@ -104,50 +104,48 @@ jobs:
       - name: Make device config file
         run: |
           mkdir userpatches
-          for device in ${{ matrix.device }}; do
-            export device=$device
-            for kernel in ${{ matrix.kernel }}; do
-              export kernel=$kernel
-              for os in ${{ matrix.os }}; do
-                export os=$os
-                for type in ${{ matrix.type }}; do
-                  export type=$type
-                  echo "Creating userpatch for ${device}-${kernel}-${os}-${type}"
+          export device=${{ matrix.device }}
+          for kernel in ${{ matrix.kernel }}; do
+            export kernel=$kernel
+            for os in ${{ matrix.os }}; do
+              export os=$os
+              for type in ${{ matrix.type }}; do
+                export type=$type
+                echo "Creating userpatch for ${device}-${kernel}-${os}-${type}"
 
-                  configfile="userpatches/config-${device}-${kernel}-${os}-${type}.conf"
-                  
-                  echo BOARD=${device} > $configfile
-                  echo KERNEL_CONFIGURE=no >> $configfile
-                  echo INSTALL_HEADERS=yes >> $configfile
-                  echo SHARE_LOGS=no >> $configfile
-                  echo KERNEL_GIT=shallow >> $configfile
-                  echo BRANCH=${kernel} >> $configfile
-                  echo RELEASE=${os} >> $configfile
-                  
+                configfile="userpatches/config-${device}-${kernel}-${os}-${type}.conf"
+                
+                echo BOARD=${device} > $configfile
+                echo KERNEL_CONFIGURE=no >> $configfile
+                echo INSTALL_HEADERS=yes >> $configfile
+                echo SHARE_LOGS=no >> $configfile
+                echo KERNEL_GIT=shallow >> $configfile
+                echo BRANCH=${kernel} >> $configfile
+                echo RELEASE=${os} >> $configfile
+                
 
-                  if [ "$type" == "minimal" ]; then
-                    echo BUILD_MINIMAL=yes >> $configfile
-                    echo BUILD_DESKTOP=no >> $configfile
-                  else
-                    echo BUILD_MINIMAL=no >> $configfile
-                    echo BUILD_DESKTOP=yes >> $configfile
-                    echo DESKTOP_APPGROUPS_SELECTED=\'browsers desktop_tools editors multimedia\' >> $configfile
-                    echo DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base >> $configfile
-                    echo ENABLE_EXTENSIONS="mesa-vpu" >> $configfile
-                    echo DESKTOP_ENVIRONMENT=${type} >> $configfile
-                  fi
+                if [ "$type" == "minimal" ]; then
+                  echo BUILD_MINIMAL=yes >> $configfile
+                  echo BUILD_DESKTOP=no >> $configfile
+                else
+                  echo BUILD_MINIMAL=no >> $configfile
+                  echo BUILD_DESKTOP=yes >> $configfile
+                  echo DESKTOP_APPGROUPS_SELECTED=\'browsers desktop_tools editors multimedia\' >> $configfile
+                  echo DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base >> $configfile
+                  echo ENABLE_EXTENSIONS="mesa-vpu" >> $configfile
+                  echo DESKTOP_ENVIRONMENT=${type} >> $configfile
+                fi
 
-                  echo "Created userpatch file: $configfile"
-                  echo "Contents:"
-                  cat $configfile
-                  echo "-----"
-                done
+                echo "Created userpatch file: $configfile"
+                echo "Contents:"
+                cat $configfile
+                echo "-----"
               done
             done
           done
 
 
-      - name: Build armbian ${{ matrix.kernel }}
+      - name: Build armbian-${{ matrix.device }}-${{ matrix.kernel }}-[${{ matrix.os }}]-${{ matrix.type }}.img
         if: ${{ !( (matrix.type == 'kde-neon' && matrix.os != 'plucky') || (matrix.type == 'mate' && matrix.os != 'trixie') ) }}
         run: |
             # export CCACHE=1
@@ -155,49 +153,37 @@ jobs:
             export uid=$(id -u)
             export gid=$(id -g)
             sudo chown -R $uid:$gid release
-            for device in ${{ matrix.device }}; do
-              export device=$device
-              for kernel in ${{ matrix.kernel }}; do
-                export kernel=$kernel 
-                for os in ${{ matrix.os }}; do
-                  export os=$os
-                  for type in ${{ matrix.type }}; do
-                    export type=$type
-                    export image=${device}-${kernel}-${os}-${type}
-                    if [ "$os" == "noble" ]; then
-                      if [ "$type" == "mate" ]; then
-                        continue
-                      fi
-                    fi
-                    if [ "$os" == "plucky" ]; then
-                      if [ "$type" == "kde-neon" ]; then
-                        continue
-                      fi
-                    fi
-                    echo running ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}
-                    ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
-                    outputfilerelpath=$(find output -name "*.img" -exec echo -n {} \;)
-                    outputfilename=$(basename -z $outputfilerelpath .img)
-                    outputfilepath=$(realpath -z $outputfilerelpath)
-                    mv -vf $outputfilepath release/
-                    sudo chown -R $uid:$gid release
-                    cd release/
-                    ls -l
-                    echo "Compressing ${outputfilename}.img to ${outputfilename}.img.xz"
-                    time xz -vz -T$(($(nproc) + 2)) -6 ${outputfilename}.img || true
-                    oldfilename=$outputfilename 
-                    ls ${oldfilename}.img.xz || exit 1
-                    echo Old Filename is ${oldfilename}.img.xz
-                    AVer=$(echo $oldfilename | sed 's/Armbian-unofficial_\([^_]*\).*/\1/')
-                    echo 
-                    echo AVer: $AVer
-                    KVer=${kernel}-$(echo $oldfilename | sed "s/.*_${kernel}_\([^_]*\).*/\1/") 
-                    echo KVer: $KVer
-                    filename=armbian-$(echo ${device}-${os}-${type}-${AVer}-${KVer}-${{ needs.get_build_date.outputs.build_datedash }})
-                    echo New Filename is ${filename}.img.xz
-                    mv -vf "${oldfilename}.img.xz" "${filename}.img.xz"
-                    cd ..
-                  done
+            for kernel in ${{ matrix.kernel }}; do
+              export kernel=$kernel 
+              for os in ${{ matrix.os }}; do
+                export os=$os
+                for type in ${{ matrix.type }}; do
+                  export type=$type
+                  export image=${{ matrix.device }}-${kernel}-${os}-${type}
+
+                  echo running ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}
+                  ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
+                  outputfilerelpath=$(find output -name "*.img" -exec echo -n {} \;)
+                  outputfilename=$(basename -z $outputfilerelpath .img)
+                  outputfilepath=$(realpath -z $outputfilerelpath)
+                  mv -vf $outputfilepath release/
+                  sudo chown -R $uid:$gid release
+                  cd release/
+                  ls -l
+                  echo "Compressing ${outputfilename}.img to ${outputfilename}.img.xz"
+                  time xz -vz -T$(($(nproc) + 2)) -3 ${outputfilename}.img || true
+                  oldfilename=$outputfilename 
+                  ls ${oldfilename}.img.xz || exit 1
+                  echo Old Filename is ${oldfilename}.img.xz
+                  AVer=$(echo $oldfilename | sed 's/Armbian-unofficial_\([^_]*\).*/\1/')
+                  echo 
+                  echo AVer: $AVer
+                  KVer=${kernel}-$(echo $oldfilename | sed "s/.*_${kernel}_\([^_]*\).*/\1/") 
+                  echo KVer: $KVer
+                  filename=armbian-$(echo ${{ matrix.device }}-${os}-${type}-${AVer}-${KVer}-${{ needs.get_build_date.outputs.build_datedash }})
+                  echo New Filename is ${filename}.img.xz
+                  mv -vf "${oldfilename}.img.xz" "${filename}.img.xz"
+                  cd ..
                 done
               done
             done
