@@ -104,10 +104,10 @@ jobs:
       - name: Make device config file
         run: |
           mkdir userpatches
-          for device in ${{ matrix.device }}; do
-            export device=$device
-            for kernel in ${{ matrix.kernel }}; do
-              export kernel=$kernel
+          for kernel in ${{ matrix.kernel }}; do
+            export kernel=$kernel
+            for device in ${{ matrix.device }}; do
+              export device=$device
               for os in ${{ matrix.os }}; do
                 export os=$os
                 for type in ${{ matrix.type }}; do
@@ -155,10 +155,10 @@ jobs:
             export uid=$(id -u)
             export gid=$(id -g)
             sudo chown -R $uid:$gid release
-            for device in ${{ matrix.device }}; do
-              export device=$device
-              for kernel in ${{ matrix.kernel }}; do
-                export kernel=$kernel 
+            for kernel in ${{ matrix.kernel }}; do
+              export kernel=$kernel
+              for device in ${{ matrix.device }}; do
+                export device=$device
                 for os in ${{ matrix.os }}; do
                   export os=$os
                   for type in ${{ matrix.type }}; do
