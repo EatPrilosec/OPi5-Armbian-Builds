@@ -162,7 +162,7 @@ jobs:
                   export image=${{ matrix.device }}-${kernel}-${os}-${type}
 
                   echo running ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}
-                  ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
+                  ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image} || ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image} || ./compile.sh EXPERT=yes CLEAN_LEVEL=images ${image}  
                   outputfilerelpath=$(find output -name "*.img" -exec echo -n {} \;)
                   outputfilename=$(basename -z $outputfilerelpath .img)
                   outputfilepath=$(realpath -z $outputfilerelpath)
