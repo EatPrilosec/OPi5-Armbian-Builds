@@ -196,8 +196,8 @@ jobs:
           files: release/*.img.xz
           draft: true
           fail_on_unmatched_files: true
-          name: build ${{ matrix.device }}-${{ needs.get_build_date.outputs.build_datedash }}
-          tag_name: ${{ matrix.device }}-v${{ needs.get_build_date.outputs.build_date }}
+          name: build ${{ needs.get_build_date.outputs.build_datedash }}
+          tag_name: v${{ needs.get_build_date.outputs.build_date }}
     
   update_release_body:
     runs-on: ubuntu-latest
