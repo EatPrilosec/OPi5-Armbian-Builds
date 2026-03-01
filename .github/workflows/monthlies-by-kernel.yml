@@ -39,7 +39,7 @@ jobs:
         device: [orangepi5-max orangepi5-plus orangepi5-ultra orangepi5 orangepi5b orangepi5pro]
         type: [minimal cinnamon gnome kde-plasma mate xfce]
         kernel: [current, edge, vendor] 
-        os: [trixie noble]
+        os: [trixie, noble]
         # include:
         #   - device: orangepi5-plus
         #     type: kde-neon
@@ -101,7 +101,7 @@ jobs:
           tar --strip-components=1 -xf ${LatestArmbianVer}.tar.gz
           rm -f ${LatestArmbianVer}.tar.gz
 
-      - name: Make device config file
+      - name: Make device config files
         run: |
           mkdir userpatches
           for kernel in ${{ matrix.kernel }}; do
@@ -203,7 +203,7 @@ jobs:
             done
 
 
-      - name: Release armbian-[${{ matrix.device }}]-[${{ matrix.os }}]-[${{ matrix.type }}].img.xz
+      - name: Release armbian ${{ matrix.kernel }}
         if: ${{ !( (matrix.type == 'kde-neon' && matrix.os != 'plucky') || (matrix.type == 'mate' && matrix.os != 'trixie') ) }}
         uses: softprops/action-gh-release@v2
         with:
